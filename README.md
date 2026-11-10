@@ -2,6 +2,10 @@
 
 O LevaComigo é um projeto da disciplina de Dispositivos Móveis feito em Flutter e Dart. A ideia é aproveitar o espaço livre na bagagem de quem já vai viajar para transportar pequenas encomendas.
 
+# Grupo
+
+Alunos: Lucas vilar do nascimento nunes, José kayo e Gabriel Rodrigues
+
 ## Como rodar
 
 Com Flutter 3.41 ou mais recente, abra o terminal na raiz do projeto:
