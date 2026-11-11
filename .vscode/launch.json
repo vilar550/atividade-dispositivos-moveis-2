@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "LevaComigo - navegador (release)",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "deviceId": "web-server",
+      "flutterMode": "release",
+      "noDebug": true,
+      "toolArgs": [
+        "--no-pub",
+        "--web-hostname",
+        "127.0.0.1",
+        "--web-port",
+        "8083"
+      ]
+    }
+  ]
+}

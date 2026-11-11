@@ -148,3 +148,5 @@
 # Ícones pequenos do aplicativo são armazenados diretamente no Git.
 android/app/src/main/res/**/*.png -filter -diff -merge -text
 web/**/*.png -filter -diff -merge -text
+# As fontes pequenas do aplicativo acompanham o código em clones comuns.
+assets/fonts/*.ttf -filter -diff -merge -text

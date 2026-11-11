@@ -35,12 +35,52 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) => AppPage(
     children: [
-      Heading('Meu perfil', subtitle: store.user),
+      const Eyebrow('Minha conta'),
+      Panel(
+        children: [
+          Row(
+            children: [
+              IdentityAvatar(store.profile['name'] as String, size: 72),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      store.profile['name'] as String,
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      store.user,
+                      style: const TextStyle(color: muted, fontSize: 12),
+                    ),
+                    if ((store.profile['city'] as String? ?? '').isNotEmpty)
+                      Text(
+                        store.profile['city'] as String,
+                        style: const TextStyle(color: muted, fontSize: 12),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      const Heading(
+        'Meu perfil',
+        subtitle: 'Gerencie seus dados, sua segurança e sua atividade.',
+      ),
       Panel(
         children: [
           Entry('Nome', controller: _name),
-          Entry('Telefone', controller: _phone),
-          Entry('Cidade', controller: _city),
+          ResponsiveRow(
+            breakpoint: 600,
+            children: [
+              Entry('Telefone', controller: _phone),
+              Entry('Cidade', controller: _city),
+            ],
+          ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             title: const Text('Exibir notificações'),

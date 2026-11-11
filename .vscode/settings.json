@@ -1,0 +1,6 @@
+{
+  "dart.flutterShowWebServerDevice": "always",
+  "dart.analyzerVmAdditionalArgs": [
+    "--old_gen_heap_size=256"
+  ]
+}

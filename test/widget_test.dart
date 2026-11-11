@@ -24,6 +24,7 @@ void main() {
     Future<void> tap(String label) async {
       final item = find.text(label);
       await tester.ensureVisible(item);
+      await tester.pumpAndSettle();
       await tester.tap(item);
       await tester.pumpAndSettle();
     }

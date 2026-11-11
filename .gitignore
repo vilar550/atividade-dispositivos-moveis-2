@@ -20,3 +20,7 @@ test-results/
 playwright-report/
 /.plugins/
 /.opencode-skills/
+
+# Atalhos locais com caminhos específicos deste computador
+/Abrir LevaComigo.cmd
+/Abrir LevaComigo - modo leve.cmd

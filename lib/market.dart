@@ -58,40 +58,95 @@ class _SearchPageState extends State<SearchPage> {
           'Buscar viagem',
           subtitle: 'Preencha a rota e os dados da sua encomenda.',
         ),
-        Panel(
+        ResponsiveRow(
+          flexes: const [3, 1],
+          breakpoint: 820,
           children: [
-            CityEntry('Origem', controller: _origin, focus: _originFocus),
-            CityEntry(
-              'Destino',
-              controller: _destination,
-              focus: _destinationFocus,
+            Panel(
+              children: [
+                const FormIntro(
+                  'Para onde sua encomenda vai?',
+                  'Preencha os dados para encontrar viajantes disponíveis.',
+                ),
+                ResponsiveRow(
+                  breakpoint: 500,
+                  children: [
+                    CityEntry(
+                      'Origem',
+                      controller: _origin,
+                      focus: _originFocus,
+                    ),
+                    CityEntry(
+                      'Destino',
+                      controller: _destination,
+                      focus: _destinationFocus,
+                    ),
+                  ],
+                ),
+                ResponsiveRow(
+                  breakpoint: 580,
+                  gap: 14,
+                  children: [
+                    LabeledField(
+                      'Data da viagem',
+                      child: DateEntry(
+                        date: _date,
+                        onChanged: (date) => setState(() => _date = date),
+                      ),
+                    ),
+                    Entry('Peso (kg)', controller: _weight, numeric: true),
+                    Choice(
+                      'Categoria',
+                      value: _category,
+                      options: itemTypes,
+                      onChanged: (value) => setState(() => _category = value),
+                    ),
+                  ],
+                ),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xfff0f1ed),
+                    borderRadius: BorderRadius.circular(7),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.info_outline, size: 20),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Informe o peso e a categoria para encontrar espaço disponível na bagagem.',
+                          style: TextStyle(fontSize: 11, color: muted),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                FilledButton.icon(
+                  icon: const Icon(Icons.search, size: 18),
+                  label: const Text('Encontrar viagens'),
+                  onPressed: () => perform(context, () async {
+                    FocusScope.of(context).unfocus();
+                    final query = RouteQuery(
+                      _origin.text,
+                      _destination.text,
+                      day(_date),
+                      decimal(_weight.text) ?? 0,
+                      _category,
+                    );
+                    query.validate();
+                    setState(() => _query = query);
+                  }),
+                ),
+              ],
             ),
-            DateEntry(
-              date: _date,
-              onChanged: (date) => setState(() => _date = date),
-            ),
-            Entry('Peso (kg)', controller: _weight, numeric: true),
-            Choice(
-              'Categoria',
-              value: _category,
-              options: itemTypes,
-              onChanged: (value) => setState(() => _category = value),
-            ),
-            FilledButton.icon(
-              icon: const Icon(Icons.search),
-              label: const Text('Encontrar viagens'),
-              onPressed: () => perform(context, () async {
-                FocusScope.of(context).unfocus();
-                final query = RouteQuery(
-                  _origin.text,
-                  _destination.text,
-                  day(_date),
-                  decimal(_weight.text) ?? 0,
-                  _category,
-                );
-                query.validate();
-                setState(() => _query = query);
-              }),
+            const SideHelp(
+              title: 'Sua encomenda,\num novo destino.',
+              steps: [
+                'Encontre uma viagem',
+                'Combine com o viajante',
+                'Acompanhe a entrega',
+              ],
             ),
           ],
         ),
@@ -268,25 +323,43 @@ class _TripFormPageState extends State<TripFormPage> {
       children: [
         Panel(
           children: [
+            const FormIntro(
+              'Sua viagem pode levar mais.',
+              'Compartilhe espaço na bagagem e conecte destinos.',
+              number: '02',
+            ),
             if (trip == null) ...[
-              CityEntry('Origem', controller: _origin, focus: _originFocus),
-              CityEntry(
-                'Destino',
-                controller: _destination,
-                focus: _destinationFocus,
+              ResponsiveRow(
+                breakpoint: 560,
+                children: [
+                  CityEntry('Origem', controller: _origin, focus: _originFocus),
+                  CityEntry(
+                    'Destino',
+                    controller: _destination,
+                    focus: _destinationFocus,
+                  ),
+                ],
               ),
-              DateEntry(
-                date: _date,
-                onChanged: (date) => setState(() => _date = date),
+              LabeledField(
+                'Data da viagem',
+                child: DateEntry(
+                  date: _date,
+                  onChanged: (date) => setState(() => _date = date),
+                ),
               ),
             ] else
               TripSummary(widget.store, trip!),
-            Entry(
-              'Capacidade total (kg)',
-              controller: _capacity,
-              numeric: true,
+            ResponsiveRow(
+              breakpoint: 500,
+              children: [
+                Entry(
+                  'Capacidade total (kg)',
+                  controller: _capacity,
+                  numeric: true,
+                ),
+                Entry('Preço por kg (R\$)', controller: _price, numeric: true),
+              ],
             ),
-            Entry('Preço por kg (R\$)', controller: _price, numeric: true),
             const Text('Categorias aceitas'),
             Wrap(
               spacing: 8,

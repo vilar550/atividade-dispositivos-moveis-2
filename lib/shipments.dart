@@ -24,10 +24,46 @@ class ShipmentTile extends StatelessWidget {
     return Card(
       margin: EdgeInsets.zero,
       child: ListTile(
-        title: Text('${city(trip.origin)} → ${city(trip.destination)}'),
-        subtitle: Text(
-          '#${shipment.id} · ${shipment.status.label}\n'
-          '${sender ? 'Viajante: ${trip.name}' : 'Remetente: ${shipment.sender}'}',
+        leading: Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: const Color(0xffefefeb),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Icon(Icons.inventory_2_outlined, size: 22),
+        ),
+        title: Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Text(
+            '${city(trip.origin)} → ${city(trip.destination)}',
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+          ),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '#${shipment.id} · ${sender ? 'Viajante: ${trip.name}' : 'Remetente: ${shipment.sender}'}',
+              style: const TextStyle(fontSize: 11, color: muted),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: const Color(0xffeceee7),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Text(
+                shipment.status.label.toUpperCase(),
+                style: const TextStyle(
+                  fontSize: 9,
+                  letterSpacing: .6,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
         ),
         trailing: const Icon(Icons.chevron_right),
         onTap: () => openTracking(context, store, shipment.id),
@@ -196,82 +232,217 @@ class TrackingPage extends StatelessWidget {
         final review = store.review(id);
         return AppPage(
           children: [
-            Panel(
+            const Eyebrow('Acompanhe sua encomenda'),
+            ResponsiveRow(
+              flexes: const [2, 1],
+              breakpoint: 780,
               children: [
-                TripSummary(store, trip),
-                Heading(shipment.status.label),
-                Text('Remetente: ${shipment.sender}'),
-                Text('${shipment.category} · ${kg(shipment.weight)} kg'),
-                Text(shipment.description),
-                Text('Valor declarado: ${money(shipment.declaredValue)}'),
-                Text('Total combinado: ${money(shipment.price)}'),
-                if (shipment.example || trip.example)
-                  const Text(
-                    'Demonstração. Você pode simular as ações da outra parte.',
-                  ),
+                Panel(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Eyebrow('Código da encomenda'),
+                              const SizedBox(height: 8),
+                              Text(
+                                '#$id',
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.headlineMedium,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.inventory_2_outlined, size: 32),
+                      ],
+                    ),
+                    const Divider(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Eyebrow('Origem'),
+                              const SizedBox(height: 8),
+                              Text(
+                                city(trip.origin),
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: Icon(
+                            Icons.flight_takeoff_outlined,
+                            color: muted,
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              const Eyebrow('Destino'),
+                              const SizedBox(height: 8),
+                              Text(
+                                city(trip.destination),
+                                style: Theme.of(context).textTheme.titleLarge,
+                                textAlign: TextAlign.end,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Divider(),
+
+                    Heading(shipment.status.label),
+                    const Divider(),
+                    const Heading('Histórico da encomenda'),
+                    for (final status in Status.values.where(
+                      (status) => shipment.events.containsKey(status.key),
+                    ))
+                      ListTile(
+                        leading: CircleAvatar(
+                          radius: 18,
+                          backgroundColor: status == shipment.status
+                              ? accent
+                              : ink,
+                          foregroundColor: status == shipment.status
+                              ? ink
+                              : Colors.white,
+                          child: const Icon(Icons.check, size: 17),
+                        ),
+                        title: Text(
+                          status.label,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        subtitle: Text(timeLabel(shipment.events[status.key]!)),
+                      ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Panel(
+                      children: [
+                        const Eyebrow('Detalhes da encomenda'),
+                        Row(
+                          children: [
+                            IdentityAvatar(
+                              sender ? trip.name : shipment.sender,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Eyebrow('Responsáveis pela entrega'),
+                                  Text('Viajante: ${trip.name}'),
+                                  Text(
+                                    'Remetente: ${shipment.sender}',
+                                    style: const TextStyle(
+                                      color: muted,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          '${shipment.category} · ${kg(shipment.weight)} kg',
+                        ),
+                        Text(shipment.description),
+                        Text(
+                          'Valor declarado: ${money(shipment.declaredValue)}',
+                        ),
+                        Text('Total combinado: ${money(shipment.price)}'),
+                        if (shipment.example || trip.example)
+                          const Text(
+                            'Demonstração. Você pode simular as ações da outra parte.',
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    for (final child in <Widget>[
+                      if (actions.isNotEmpty)
+                        Panel(
+                          children: [
+                            const Text('Próximas ações'),
+                            for (final action in actions)
+                              OutlinedButton(
+                                onPressed: () async {
+                                  if ([
+                                    Status.refused,
+                                    Status.cancelled,
+                                    Status.completed,
+                                  ].contains(action)) {
+                                    if (!await confirm(
+                                      context,
+                                      '${actionLabels[action]}?',
+                                      'A etapa será registrada no histórico.',
+                                    )) {
+                                      return;
+                                    }
+                                  }
+                                  if (context.mounted) {
+                                    await perform(
+                                      context,
+                                      () => store.advance(id, action),
+                                    );
+                                  }
+                                },
+                                child: Text(
+                                  (trip.example &&
+                                          sender &&
+                                          action == Status.arrived)
+                                      ? 'Simular chegada'
+                                      : actionLabels[action]!,
+                                ),
+                              ),
+                          ],
+                        ),
+                      if (sender &&
+                          shipment.status == Status.completed &&
+                          review == null)
+                        FilledButton(
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => RatingPage(store, id),
+                            ),
+                          ),
+                          child: const Text('Avaliar entrega'),
+                        ),
+                      if (review != null) ReviewTile(review),
+                      OutlinedButton.icon(
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChatPage(store, id),
+                          ),
+                        ),
+                        icon: const Icon(Icons.chat_bubble_outline),
+                        label: const Text('Abrir conversa'),
+                      ),
+                    ])
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 18),
+                        child: child,
+                      ),
+                  ],
+                ),
               ],
             ),
-            if (actions.isNotEmpty)
-              Panel(
-                children: [
-                  const Text('Próximas ações'),
-                  for (final action in actions)
-                    OutlinedButton(
-                      onPressed: () async {
-                        if ([
-                          Status.refused,
-                          Status.cancelled,
-                          Status.completed,
-                        ].contains(action)) {
-                          if (!await confirm(
-                            context,
-                            '${actionLabels[action]}?',
-                            'A etapa será registrada no histórico.',
-                          )) {
-                            return;
-                          }
-                        }
-                        if (context.mounted) {
-                          await perform(
-                            context,
-                            () => store.advance(id, action),
-                          );
-                        }
-                      },
-                      child: Text(
-                        (trip.example && sender && action == Status.arrived)
-                            ? 'Simular chegada'
-                            : actionLabels[action]!,
-                      ),
-                    ),
-                ],
-              ),
-            if (sender && shipment.status == Status.completed && review == null)
-              FilledButton(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => RatingPage(store, id)),
-                ),
-                child: const Text('Avaliar entrega'),
-              ),
-            if (review != null) ReviewTile(review),
-            OutlinedButton.icon(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => ChatPage(store, id)),
-              ),
-              icon: const Icon(Icons.chat_bubble_outline),
-              label: const Text('Abrir conversa'),
-            ),
-            const Heading('Histórico da encomenda'),
-            for (final status in Status.values.where(
-              (status) => shipment.events.containsKey(status.key),
-            ))
-              ListTile(
-                leading: const Icon(Icons.check_circle_outline),
-                title: Text(status.label),
-                subtitle: Text(timeLabel(shipment.events[status.key]!)),
-              ),
           ],
         );
       },
@@ -492,22 +663,66 @@ class _ChatPageState extends State<ChatPage> {
             if (messages.isEmpty)
               const Text('Ainda não há mensagens nesta conversa.'),
             for (final message in messages)
-              Panel(
-                children: [
-                  Text(switch (message['author']) {
-                    'system' => 'Atualização da encomenda',
-                    _ =>
-                      message['authorId'] == widget.store.user ||
-                              message['authorId'] == null
-                          ? 'Enviada'
-                          : 'Recebida',
-                  }, style: Theme.of(context).textTheme.labelLarge),
-                  Text(message['text']),
-                  Text(
-                    timeLabel(message['at']),
-                    style: Theme.of(context).textTheme.bodySmall,
+              Align(
+                alignment: message['authorId'] == widget.store.user
+                    ? Alignment.centerRight
+                    : Alignment.centerLeft,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 580),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      color: message['authorId'] == widget.store.user
+                          ? ink
+                          : paper,
+                      border: Border.all(color: line),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          message['author'] == 'system'
+                              ? 'Atualização da encomenda'
+                              : message['authorId'] == widget.store.user ||
+                                    message['authorId'] == null
+                              ? 'Enviada'
+                              : 'Recebida',
+                          style: TextStyle(
+                            color: message['authorId'] == widget.store.user
+                                ? accent
+                                : muted,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 7),
+                        Text(
+                          message['text'],
+                          style: TextStyle(
+                            color: message['authorId'] == widget.store.user
+                                ? Colors.white
+                                : ink,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          timeLabel(message['at']),
+                          style: TextStyle(
+                            fontSize: 9,
+                            color: message['authorId'] == widget.store.user
+                                ? const Color(0xffaeb1aa)
+                                : muted,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ],
+                ),
               ),
             Entry('Mensagem', controller: _message, onSubmitted: _send),
             FilledButton(

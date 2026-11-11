@@ -25,3 +25,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  fonts:
+    - family: DM Sans
+      fonts:
+        - asset: assets/fonts/DMSans.ttf
+    - family: Manrope
+      fonts:
+        - asset: assets/fonts/Manrope.ttf
